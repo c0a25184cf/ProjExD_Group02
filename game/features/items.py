@@ -1,6 +1,6 @@
-"""アイテム機能(担当: 
+"""アイテム機能(担当:吉荒倖汰 
 """
-
+import math
 from __future__ import annotations
 
 from typing import Any
@@ -23,6 +23,11 @@ class Items(Feature):
         ]
 
     def update(self, game: FPSGame, dt: float) -> None:
+        # 追記: 全てのアイテム（回復パックと弾薬パック）をふわふわ回転させる
+        for pack in self.health_packs + self.ammo_packs:
+            pack.yaw += dt * 2.0
+            pack.y = 0.3 + math.sin(game.time * 3.0) * 0.08
+
         for pack in self.health_packs[:]:
             if game.near_player(pack, 0.7) and game.player.health < game.player.max_health:
                 game.heal_player(25)
