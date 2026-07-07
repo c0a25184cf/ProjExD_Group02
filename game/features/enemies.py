@@ -27,6 +27,9 @@ class Enemies(Feature):
             for x, z in game.find_cells("E"):
                 enemy = game.spawn_character(x, z, color=(180, 45, 40), style="grunt", name="enemy")
 
+                enemy.data["mode"] = "patrol"
+                enemy.data["patrol_target"] = game.random_open_cell()  # 最初の巡回先を決める
+
                 enemy.data["hp"] = config["hp"]
                 enemy.data["speed"] = config["speed"]
                 enemy.data["score"] = config["score"]
@@ -52,6 +55,44 @@ class Enemies(Feature):
 
             dist = game.distance_to_player(enemy)
             can_see = game.can_see(enemy, game.player)
+
+            if can_see:
+                # プレイヤーが見えたら追跡モードに切り替え
+                enemy.data["mode"] = "chase"
+            else:
+                # プレイヤーを見失ったら巡回モードに戻す
+                enemy.data["mode"] = "patrol"
+
+            if enemy.data["mode"] == "chase":
+                # 【追跡モードの挙動】
+                # ※前回の遠距離攻撃タスクが残っている場合は、ここに遠距離攻撃の処理を挟んでもOKです
+                
+                # 距離が 1.0 より離れているならプレイヤーに向かって近づく
+                if dist > 1.0:
+                    enemy.move_towards(game.player.x, game.player.z, speed=enemy.data["speed"], dt=dt)
+
+            elif enemy.data["mode"] == "patrol":
+                # 【巡回モードの挙動】
+                # 現在設定されている巡回先の座標 (x, z) を取得
+                target_cell = enemy.data["patrol_target"]
+                
+                if target_cell is not None:
+                    tx, tz = target_cell
+                    enemy.move_towards(tx, tz, speed=enemy.data["speed"] * 0.7, dt=dt)
+
+                    # 巡回先に十分近づいたかどうかを判定（例: 距離が 0.5 未満になったら到着）
+                    # 敵の現在地からターゲット座標までの距離を計算
+                    dx = tx - enemy.x
+                    dz = tz - enemy.z
+                    dist_to_target = (dx**2 + dz**2)**0.5
+
+                    if dist_to_target < 0.5:
+                        # 目的地に到着したので、新しい巡回先をランダムに設定する
+                        enemy.data["patrol_target"] = game.random_open_cell()
+
+                if enemy.data["mode"] == "chase" and game.near_player(enemy, 1.1) and enemy.data["attack_cooldown"] <= 0.0:
+                    game.damage_player(12)
+                enemy.data["attack_cooldown"] = 0.9
 
             if can_see and 3.0 <= dist <= 9.0:
                 # クールダウンが終わっていれば射撃
