@@ -21,7 +21,7 @@ class Enemies(Feature):
             "E": {"style": "grunt",  "hp": 3,  "speed": 1.4, "score": 100,  "color": (180, 45, 40),  "height": None},
             "I": {"style": "imp",    "hp": 1,  "speed": 2.2, "score": 100,  "color": (234, 96, 158), "height": None}, 
             "B": {"style": "brute",  "hp": 5,  "speed": 0.7, "score": 300,  "color": (29, 80, 162),  "height": 1.8},  
-            "T": {"style": "turret", "hp": 4,  "speed": 0.0, "score": 200,  "color": (0, 169, 104),  "height": 1.1}, # 砲台は動かないよう speed=0.0 を推奨
+            "T": {"style": "turret", "hp": 4,  "speed": 0.0, "score": 200,  "color": (0, 169, 104),  "height": 1.1}, 
             "O": {"style": "boss",   "hp": 12, "speed": 1.2, "score": 1000, "color": (33, 33, 33),   "height": 2.2},  
         }
 
